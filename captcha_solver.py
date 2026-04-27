@@ -4,15 +4,23 @@ import hashlib
 import cv2
 import numpy as np
 
-# 1. Dizin Sabitleme: RPA'nın dışarıdan çalıştırması durumunda yolların şaşmaması için
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+# EXE Path Resolver: PyInstaller bundles files in a temp folder accessed via _MEIPASS
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, relative_path)
+
+# 1. Dizin Sabitleme: EXE veya Script modunda yolların şaşmaması için
+CURRENT_DIR = resource_path("")
 os.chdir(CURRENT_DIR)
 
 from predict_model_plus import PlusAnchorSolver
 from inject_real_data import EQUATIONS
 
 # 2. Beyin ve Hafıza Hazırlığı (Warm-up)
-_ai_brain = PlusAnchorSolver(model_path="number_classifier.pth")
+_ai_brain = PlusAnchorSolver(model_path=resource_path("number_classifier.pth"))
 ALTIN_HAFIZA = {}
 
 def get_image_hash(image_path):
@@ -25,7 +33,7 @@ def get_image_hash(image_path):
 def build_gold_memory():
     """Hafızadaki Altın Örneklerin Hash Kayıtlarını oluşturur."""
     for fname, (n1, n2) in EQUATIONS.items():
-        path = os.path.join('image', fname)
+        path = resource_path(os.path.join('image', fname))
         if os.path.exists(path):
             h = get_image_hash(path)
             if h:
