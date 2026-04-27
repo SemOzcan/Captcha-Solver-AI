@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pth
+dataset/
+scratch/
+*.png.png
+debug_*.png
+debug_*.jpg
+!number_classifier.pth
